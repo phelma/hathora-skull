@@ -1,0 +1,63 @@
+types:
+  Card:
+    - SKULL
+    - FLOWER
+  GameStage:
+    - FIRST
+    - PLACING
+    - BIDDING
+    - REVEALING
+    - DONE
+  TurnType:
+    - PLACE
+    - BID
+    - TURN
+    - PASS
+    - REVEAL
+  Bid:
+    id: UserId
+    count: int
+  Turn:
+    player: UserId
+    bid: Bid?
+    card: Card?
+    pass: boolean?
+    reveal: UserId?
+  Pile:
+    user: UserId?
+    cards: Card[]
+  Player:
+    id: UserId
+    points: int
+    hand: Card[]
+    pile: Pile
+  GameState:
+    players: Player[]
+    stage: GameStage
+    turn: UserId?
+    piles: Pile[]
+    winner: UserId?
+  UserState:
+    hand: Card[]
+    players: Player[]
+    turn: UserId?
+    piles: Pile[]
+    points: int
+    gameStage: GameStage
+
+methods:
+  joinGame:
+  startGame:
+  placeCard:
+    card: Card
+  bid:
+    bid: Bid
+  pass:
+  reveal:
+    user: UserId
+
+auth:
+  anonymous: {}
+
+userState: UserState
+error: string
