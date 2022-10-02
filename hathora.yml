@@ -8,40 +8,25 @@ types:
     - BIDDING
     - REVEALING
     - DONE
-  TurnType:
-    - PLACE
-    - BID
-    - TURN
-    - PASS
-    - REVEAL
   Bid:
     id: UserId
     count: int
-  Turn:
-    player: UserId
-    bid: Bid?
-    card: Card?
-    pass: boolean?
-    reveal: UserId?
-  Pile:
-    user: UserId?
-    cards: Card[]
   Player:
     id: UserId
     points: int
     hand: Card[]
-    pile: Pile
+    pile: Card[]
+    passed: boolean?
   GameState:
     players: Player[]
     stage: GameStage
     turn: UserId?
-    piles: Pile[]
     winner: UserId?
   UserState:
     hand: Card[]
     players: Player[]
     turn: UserId?
-    piles: Pile[]
+    piles: Card[]
     points: int
     gameStage: GameStage
 
@@ -51,7 +36,7 @@ methods:
   placeCard:
     card: Card
   bid:
-    bid: Bid
+    bid: int
   pass:
   reveal:
     user: UserId
