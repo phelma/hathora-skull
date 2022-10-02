@@ -55,7 +55,7 @@ export class Impl implements Methods<InternalState> {
   }
   startGame(state: InternalState, userId: UserId, ctx: Context, request: IStartGameRequest): Response {
     if (state.players.length < 2) {
-      // return Response.error("Not enough players")
+      return Response.error("Not enough players")
     }
     state.players.forEach(p => {
       p.hand = [Card.SKULL, Card.FLOWER, Card.FLOWER, Card.FLOWER],
@@ -117,8 +117,8 @@ export class Impl implements Methods<InternalState> {
 
     if (state.turn !== userId) return Response.error("Not your turn")
 
-    const minBid = Math.max(1, state.bid?.count || 0)
-    if (request.bid < 1) return Response.error(`Bid must be ${minBid} or more`)
+    const minBid = Math.max(0, state.bid?.count || 0) + 1
+    if (request.bid < minBid) return Response.error(`Bid must be ${minBid} or more`)
     const totalCardsInPiles = state.players.reduce((acc, p) => acc + p.pile.length, 0)
     if (request.bid > totalCardsInPiles) return Response.error("Bid must be less than total number of cards in piles")
 
@@ -130,14 +130,32 @@ export class Impl implements Methods<InternalState> {
     state.stage = GameStage.BIDDING
     state.turn = nextTurn(state.players, state.turn)
 
+
+    if (request.bid === totalCardsInPiles || ) {
+      state.stage = GameStage.REVEALING
+    }
+
     return Response.ok()
   }
   pass(state: InternalState, userId: UserId, ctx: Context, request: IPassRequest): Response {
+    if (state.stage !== GameStage.BIDDING) return Response.error("Not in bidding stage")
+    const player = state.players.find(p => p.id === userId)
+    if (!player) return Response.error("Player not found")
+
+    player.passed = true
+
+    const allPlayersPassed = state.players.filter(p => !p.passed).length === 1
+    if (allPlayersPassed) {
+      state.stage = GameStage.REVEALING
+    }
+
     return Response.error("Not implemented");
   }
+
   reveal(state: InternalState, userId: UserId, ctx: Context, request: IRevealRequest): Response {
     return Response.error("Not implemented");
   }
+
   getUserState(state: InternalState, userId: UserId): UserState {
     const player = state.players.find(p => p.id === userId)
     if (!player) {
