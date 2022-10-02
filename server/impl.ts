@@ -111,10 +111,21 @@ export class Impl implements Methods<InternalState> {
 
   }
   bid(state: InternalState, userId: UserId, ctx: Context, request: IBidRequest): Response {
-    if (state.stage !== GameStage.PLACING && state.stage !== GameStage.BIDDING) return Response.error("Not in bidding stage")
+    if (state.stage !== GameStage.PLACING && state.stage !== GameStage.BIDDING) {
+      return Response.error("Not in bidding stage")
+    }
 
+    if (state.turn !== userId) return Response.error("Not your turn")
 
+    if (state.bid && request.bid.count <= state.bid.count) {
+      return Response.error("Bid must be higher than current bid")
+    }
 
+    state.bid = {
+      player: userId,
+      count: request.bid
+    }
+    state.stage = GameStage.BIDDING
 
     return Response.ok()
   }
@@ -132,7 +143,6 @@ export class Impl implements Methods<InternalState> {
         players: state.players,
         turn: state.turn,
         piles: state.players.map(p => p.pile.length),
-        points: 0,
         gameStage: state.stage
       }
     }
@@ -141,7 +151,6 @@ export class Impl implements Methods<InternalState> {
       players: state.players,
       turn: state.turn,
       piles: state.players.map(p => p.pile.length),
-      points: player.points,
       gameStage: state.stage
     };
   }

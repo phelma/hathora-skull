@@ -22,11 +22,12 @@ types:
     stage: GameStage
     turn: UserId?
     winner: UserId?
+    bid: Bid
   UserState:
     hand: Card[]
     players: Player[]
     turn: UserId?
-    piles: [int]
+    piles: int[]
     gameStage: GameStage
 
 methods:
