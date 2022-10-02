@@ -48,7 +48,8 @@ export class Impl implements Methods<InternalState> {
       id: userId,
       points: 0,
       hand: [],
-      pile: []
+      pile: [],
+      passed: false,
     })
 
     return Response.ok();
@@ -58,12 +59,15 @@ export class Impl implements Methods<InternalState> {
       return Response.error("Not enough players")
     }
     state.players.forEach(p => {
-      p.hand = [Card.SKULL, Card.FLOWER, Card.FLOWER, Card.FLOWER],
+      p.hand = [Card.SKULL, Card.FLOWER, Card.FLOWER, Card.FLOWER]
       p.pile = []
-
+      p.passed = false
+      p.revealed = 0
     })
-    state.stage = GameStage.FIRST,
+    state.stage = GameStage.FIRST
     state.winner = undefined
+    state.bid = undefined
+
 
     if (!state.turn) {
       const firstPlayerIndex = ctx.chance.integer({min: 0, max: state.players.length - 1})
@@ -131,8 +135,9 @@ export class Impl implements Methods<InternalState> {
     state.turn = nextTurn(state.players, state.turn)
 
 
-    if (request.bid === totalCardsInPiles || ) {
+    if (request.bid === totalCardsInPiles) {
       state.stage = GameStage.REVEALING
+      state.turn = state.bid?.player
     }
 
     return Response.ok()
@@ -147,12 +152,21 @@ export class Impl implements Methods<InternalState> {
     const allPlayersPassed = state.players.filter(p => !p.passed).length === 1
     if (allPlayersPassed) {
       state.stage = GameStage.REVEALING
+      state.turn = state.bid?.player
     }
 
-    return Response.error("Not implemented");
+    return Response.ok()
   }
 
   reveal(state: InternalState, userId: UserId, ctx: Context, request: IRevealRequest): Response {
+    if (state.stage !== GameStage.REVEALING) return Response.error("Not in revealing stage")
+    if (state.turn !== userId) return Response.error("Not your turn")
+
+    const player = state.players.find(p => p.id === userId)
+
+    play
+
+
     return Response.error("Not implemented");
   }
 

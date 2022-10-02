@@ -16,6 +16,7 @@ types:
     points: int
     hand: Card[]
     pile: Card[]
+    revealed: int
     passed: boolean?
   GameState:
     players: Player[]
