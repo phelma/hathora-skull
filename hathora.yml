@@ -9,7 +9,7 @@ types:
     - REVEALING
     - DONE
   Bid:
-    id: UserId
+    player: UserId
     count: int
   Player:
     id: UserId
@@ -22,7 +22,7 @@ types:
     stage: GameStage
     turn: UserId?
     winner: UserId?
-    bid: Bid
+    bid: Bid?
   UserState:
     hand: Card[]
     players: Player[]

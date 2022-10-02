@@ -117,7 +117,7 @@ export class Impl implements Methods<InternalState> {
 
     if (state.turn !== userId) return Response.error("Not your turn")
 
-    if (state.bid && request.bid.count <= state.bid.count) {
+    if (state.bid && request.bid <= state.bid.count) {
       return Response.error("Bid must be higher than current bid")
     }
 
