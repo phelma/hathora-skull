@@ -39,18 +39,15 @@ export class Impl implements Methods<InternalState> {
     };
   }
   joinGame(state: InternalState, userId: UserId, ctx: Context, request: IJoinGameRequest): Response {
-    // TODO: Check if already joined
-    const alreadyJoined = false // TODO:
-    if (alreadyJoined) {
-      return Response.error("Already joined")
-    }
+    const alreadyJoined = state.players.find(p => p.id === userId)
+    if (alreadyJoined) return Response.error("Already joined")
     state.players.push({
       id: userId,
       points: 0,
       hand: [],
       pile: [],
       passed: false,
-      revealed: 0,
+      revealedPile: [],
     })
 
     return Response.ok();
@@ -63,7 +60,7 @@ export class Impl implements Methods<InternalState> {
       p.hand = [Card.SKULL, Card.FLOWER, Card.FLOWER, Card.FLOWER]
       p.pile = []
       p.passed = false
-      p.revealed = 0
+      p.revealedPile = []
     })
     state.stage = GameStage.FIRST
     state.winner = undefined
@@ -164,15 +161,16 @@ export class Impl implements Methods<InternalState> {
     if (state.turn !== userId) return Response.error("Not your turn")
 
     const player = state.players.find(p => p.id === userId)!
-    const newRevealedCount = player?.revealed + 1
+    const revealedCard = player.pile.pop()
 
-    if (newRevealedCount > player?.pile.length) return Response.error("You can't reveal more cards than the player has")
+    if (revealedCard === undefined) return Response.error("You can't reveal more cards than the player has")
 
+    if (revealedCard === Card.SKULL) {
+      state.stage = GameStage.DONE
+      return Response.ok()
+    }
 
-
-
-
-    return Response.error("Not implemented");
+    return Response.ok()
   }
 
   getUserState(state: InternalState, userId: UserId): UserState {

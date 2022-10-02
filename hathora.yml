@@ -1,7 +1,7 @@
 types:
   Card:
-    - SKULL
     - FLOWER
+    - SKULL
   GameStage:
     - FIRST
     - PLACING
