@@ -29,6 +29,7 @@ types:
     turn: UserId?
     piles: int[]
     gameStage: GameStage
+    bid: Bid?
 
 methods:
   joinGame:

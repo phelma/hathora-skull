@@ -35,7 +35,7 @@ export class Impl implements Methods<InternalState> {
       players: [],
       stage: GameStage.FIRST,
       turn: undefined,
-      winner: undefined
+      winner: undefined,
     };
   }
   joinGame(state: InternalState, userId: UserId, ctx: Context, request: IJoinGameRequest): Response {
@@ -117,15 +117,18 @@ export class Impl implements Methods<InternalState> {
 
     if (state.turn !== userId) return Response.error("Not your turn")
 
-    if (state.bid && request.bid <= state.bid.count) {
-      return Response.error("Bid must be higher than current bid")
-    }
+    const minBid = Math.max(1, state.bid?.count || 0)
+    if (request.bid < 1) return Response.error(`Bid must be ${minBid} or more`)
+    const totalCardsInPiles = state.players.reduce((acc, p) => acc + p.pile.length, 0)
+    if (request.bid > totalCardsInPiles) return Response.error("Bid must be less than total number of cards in piles")
+
 
     state.bid = {
       player: userId,
       count: request.bid
     }
     state.stage = GameStage.BIDDING
+    state.turn = nextTurn(state.players, state.turn)
 
     return Response.ok()
   }
@@ -143,7 +146,8 @@ export class Impl implements Methods<InternalState> {
         players: state.players,
         turn: state.turn,
         piles: state.players.map(p => p.pile.length),
-        gameStage: state.stage
+        gameStage: state.stage,
+        bid: state.bid
       }
     }
     return {
@@ -151,7 +155,8 @@ export class Impl implements Methods<InternalState> {
       players: state.players,
       turn: state.turn,
       piles: state.players.map(p => p.pile.length),
-      gameStage: state.stage
+      gameStage: state.stage,
+      bid: state.bid
     };
   }
 }
