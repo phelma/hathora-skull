@@ -3,10 +3,7 @@ import { Response } from "../api/base";
 import {
   Card,
   GameStage,
-  TurnType,
   Bid,
-  Turn,
-  Pile,
   Player,
   GameState,
   UserState,
@@ -51,7 +48,7 @@ export class Impl implements Methods<InternalState> {
       id: userId,
       points: 0,
       hand: [],
-      pile: {cards: []}
+      pile: []
     })
 
     return Response.ok();
@@ -62,7 +59,7 @@ export class Impl implements Methods<InternalState> {
     }
     state.players.forEach(p => {
       p.hand = [Card.SKULL, Card.FLOWER, Card.FLOWER, Card.FLOWER],
-      p.pile = {cards: []}
+      p.pile = []
 
     })
     state.stage = GameStage.FIRST,
@@ -79,16 +76,16 @@ export class Impl implements Methods<InternalState> {
     if (!player) return Response.error("Player not found")
 
     if (state.stage === GameStage.FIRST) {
-      if (player?.pile.cards.length > 0)  return Response.error("You already placed a card")
+      if (player?.pile.length > 0)  return Response.error("You already placed a card")
 
       const hasCard = player?.hand.includes(request.card)
       if (!hasCard) return Response.error("You don't have that card")
 
       const user = state.players.find(p => p.id === userId)!
-      user.pile.cards.push(request.card)
+      user.pile.push(request.card)
       user.hand = removeCard(user.hand, request.card)
 
-      const allPlaced = state.players.every(p => p.pile.cards.length > 0)
+      const allPlaced = state.players.every(p => p.pile.length > 0)
       if (allPlaced) state.stage = GameStage.PLACING
 
       return Response.ok();
@@ -99,7 +96,7 @@ export class Impl implements Methods<InternalState> {
       const hasCard = player?.hand.includes(request.card)
       if (!hasCard) return Response.error("You don't have that card")
       const user = state.players.find(p => p.id === userId)!
-      user.pile.cards.push(request.card)
+      user.pile.push(request.card)
       user.hand = removeCard(user.hand, request.card)
 
       state.turn = nextTurn(state.players, state.turn)
@@ -134,7 +131,7 @@ export class Impl implements Methods<InternalState> {
         hand: [],
         players: state.players,
         turn: state.turn,
-        piles: state.players.map(p => p.pile),
+        piles: state.players.map(p => p.pile.length),
         points: 0,
         gameStage: state.stage
       }
@@ -143,7 +140,7 @@ export class Impl implements Methods<InternalState> {
       hand: player?.hand || [],
       players: state.players,
       turn: state.turn,
-      piles: state.players.map(p => p.pile),
+      piles: state.players.map(p => p.pile.length),
       points: player.points,
       gameStage: state.stage
     };

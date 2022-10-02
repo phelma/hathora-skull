@@ -26,8 +26,7 @@ types:
     hand: Card[]
     players: Player[]
     turn: UserId?
-    piles: Card[]
-    points: int
+    piles: [int]
     gameStage: GameStage
 
 methods:
