@@ -64,11 +64,11 @@ export class Impl implements Methods<InternalState> {
     ctx: Context,
     request: IStartGameRequest
   ): Response {
-    if (state.players.length < 2) {
-      return Response.error('Not enough players')
-    }
+    if (state.stage !== GameStage.FIRST && state.stage !== GameStage.DONE)
+      return Response.error('Cant start whilst game in progress')
+    if (state.players.length < 2) return Response.error('Not enough players')
     state.players.forEach((p) => {
-      p.hand = p.cards
+      p.hand = [...p.cards]
       p.pile = []
       p.passed = false
       p.revealedPile = []
@@ -99,6 +99,7 @@ export class Impl implements Methods<InternalState> {
       if (player?.pile.length > 0)
         return Response.error('You already placed a card')
 
+      console.log({state, player, request})
       const hasCard = player?.hand.includes(request.card)
       if (!hasCard) return Response.error("You don't have that card")
 
@@ -199,12 +200,11 @@ export class Impl implements Methods<InternalState> {
       return Response.error('Not in revealing stage')
     if (state.turn !== userId) return Response.error('Not your turn')
 
-    const player = state.players.find((p) => p.id === userId)
-    if (request.user !== userId && player.pile.length > 0) {
+    const player = state.players.find((p) => p.id === userId)!
+    if (request.user !== userId && player.pile.length > 0)
       return Response.error(
         'You must reveal cards from your own pile before anyone elses'
       )
-    }
 
     const revealingPlayer = state.players.find((p) => p.id === request.user)
 
@@ -219,6 +219,7 @@ export class Impl implements Methods<InternalState> {
 
     if (revealedCard === Card.SKULL) {
       state.stage = GameStage.DONE
+      ctx.broadcastEvent('Player turned over a Skull and loses a card')
       return Response.ok()
     }
 
@@ -229,6 +230,8 @@ export class Impl implements Methods<InternalState> {
     if (totalRevealed >= state.bid!.count) {
       state.winner = userId
       state.players.find((p) => p.id === userId)!.points += 1
+      ctx.broadcastEvent(`Player turned over ${state.bid!.count} cards and wins the round`)
+      state.stage = GameStage.DONE
     }
 
     return Response.ok()
