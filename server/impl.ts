@@ -49,6 +49,7 @@ export class Impl implements Methods<InternalState> {
     state.players.push({
       id: userId,
       points: 0,
+      cards: [Card.FLOWER, Card.FLOWER, Card.FLOWER, Card.SKULL],
       hand: [],
       pile: [],
       passed: false,
@@ -67,7 +68,7 @@ export class Impl implements Methods<InternalState> {
       return Response.error('Not enough players')
     }
     state.players.forEach((p) => {
-      p.hand = [Card.SKULL, Card.FLOWER, Card.FLOWER, Card.FLOWER]
+      p.hand = p.cards
       p.pile = []
       p.passed = false
       p.revealedPile = []

@@ -8,6 +8,9 @@
   * challenge
   * reveal
   * pile
+  * game
+  * round
+  * point
 
 * Turn
   * Type
