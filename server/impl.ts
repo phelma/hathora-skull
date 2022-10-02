@@ -50,6 +50,7 @@ export class Impl implements Methods<InternalState> {
       hand: [],
       pile: [],
       passed: false,
+      revealed: 0,
     })
 
     return Response.ok();
@@ -162,9 +163,13 @@ export class Impl implements Methods<InternalState> {
     if (state.stage !== GameStage.REVEALING) return Response.error("Not in revealing stage")
     if (state.turn !== userId) return Response.error("Not your turn")
 
-    const player = state.players.find(p => p.id === userId)
+    const player = state.players.find(p => p.id === userId)!
+    const newRevealedCount = player?.revealed + 1
 
-    play
+    if (newRevealedCount > player?.pile.length) return Response.error("You can't reveal more cards than the player has")
+
+
+
 
 
     return Response.error("Not implemented");

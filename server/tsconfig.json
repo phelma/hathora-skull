@@ -5,7 +5,6 @@
     "strict": true,
     "target": "esnext",
     "moduleResolution": "node",
-    "isolatedModules": true,
-    "forceConsistentCasingInFileNames": true
+    "isolatedModules": true
   }
 }
