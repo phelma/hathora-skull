@@ -7,8 +7,13 @@
     "build": "vite build"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.3.5",
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
     "@headlessui/react": "^1.5.0",
     "@heroicons/react": "^1.0.6",
+    "framer-motion": "^7.5.3",
+    "rc-table": "^7.27.2",
     "react": "^18.0.0",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.0.0",

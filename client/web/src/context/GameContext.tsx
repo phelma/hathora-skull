@@ -3,7 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { useSessionstorageState } from "rooks";
 import { HathoraClient, HathoraConnection } from "../../../.hathora/client";
 import { ConnectionFailure } from "../../../.hathora/failures";
-import { Card, PlayerState, IInitializeRequest } from "../../../../api/types";
+import { Card, UserState, IInitializeRequest } from "../../../../api/types";
 import { lookupUser, UserData, Response } from "../../../../api/base";
 
 interface GameContext {
@@ -14,11 +14,11 @@ interface GameContext {
   createGame: () => Promise<string>;
   joinGame: (gameId: string) => Promise<void>;
   startGame: () => Promise<void>;
-  playerState?: PlayerState;
+  userState?: UserState;
   connectionError?: ConnectionFailure;
-  playCard: (card: Card) => Promise<void>;
-  drawCard: () => Promise<void>;
-  endGame: () => void;
+  placeCard: (card: Card) => Promise<void>;
+  // drawCard: () => Promise<void>;
+  // endGame: () => void;
   getUserName: (id: string) => string;
   user?: UserData;
   connecting?: boolean;
@@ -53,7 +53,7 @@ const handleResponse = async (prom: Promise<Response>) => {
 export default function HathoraContextProvider({ children }: HathoraContextProviderProps) {
   const [token, setToken] = useSessionstorageState<string>(client.appId);
   const [connection, setConnection] = useState<HathoraConnection>();
-  const [playerState, setPlayerState] = useState<PlayerState>();
+  const [userState, setUserState] = useState<UserState>();
   const [events, setEvents] = useState<string[]>();
   const [connectionError, setConnectionError] = useState<ConnectionFailure>();
   const [connecting, setConnecting] = useState<boolean>();
@@ -90,7 +90,7 @@ export default function HathoraContextProvider({ children }: HathoraContextProvi
   const connect = useCallback(
     async (stateId: string) => {
       setConnecting(true);
-      const connection = await client.connect(token, stateId, ({ state }) => setPlayerState(state), setConnectionError);
+      const connection = await client.connect(token, stateId, ({ state }) => setUserState(state), setConnectionError);
       setConnection(connection);
       setConnecting(false);
       return connection;
@@ -102,7 +102,7 @@ export default function HathoraContextProvider({ children }: HathoraContextProvi
     if (connection !== undefined) {
       connection.disconnect();
       setConnection(undefined);
-      setPlayerState(undefined);
+      setUserState(undefined);
       setEvents(undefined);
       setConnectionError(undefined);
     }
@@ -131,25 +131,25 @@ export default function HathoraContextProvider({ children }: HathoraContextProvi
     }
   }, [token, connection]);
 
-  const playCard = useCallback(
+  const placeCard = useCallback(
     async (card: Card) => {
       if (connection) {
-        await handleResponse(connection.playCard({ card }));
+        await handleResponse(connection.placeCard({ card }));
       }
     },
     [connection]
   );
 
-  const drawCard = useCallback(async () => {
-    if (connection) {
-      await handleResponse(connection.drawCard({}));
-    }
-  }, [connection]);
+  // const drawCard = useCallback(async () => {
+  //   if (connection) {
+  //     await handleResponse(connection.drawCard({}));
+  //   }
+  // }, [connection]);
 
-  const endGame = () => {
-    setPlayerState(undefined);
-    connection?.disconnect();
-  };
+  // const endGame = () => {
+  //   setUserState(undefined);
+  //   connection?.disconnect();
+  // };
 
   useEffect(() => {
     if (connectionError) {
@@ -178,14 +178,14 @@ export default function HathoraContextProvider({ children }: HathoraContextProvi
   }, [token]);
 
   useEffect(() => {
-    if (playerState?.turn) {
-      if (playerState?.turn === user?.id) {
+    if (userState?.turn) {
+      if (userState?.turn === user?.id) {
         toast.success(`It's your turn`, { position: "top-center", hideProgressBar: true });
       } else {
-        toast.info(`it is ${getUserName(playerState?.turn)}'s turn`, { position: "top-center", hideProgressBar: true });
+        toast.info(`it is ${getUserName(userState?.turn)}'s turn`, { position: "top-center", hideProgressBar: true });
       }
     }
-  }, [playerState?.turn]);
+  }, [userState?.turn]);
 
   return (
     <HathoraContext.Provider
@@ -197,14 +197,14 @@ export default function HathoraContextProvider({ children }: HathoraContextProvi
         joinGame,
         disconnect,
         createGame,
-        playerState,
+        userState,
         connectionError,
         startGame,
-        playCard,
-        drawCard,
+        placeCard,
+        // drawCard,
         loggingIn,
         user,
-        endGame,
+        // endGame,
         getUserName,
       }}
     >

@@ -99,7 +99,6 @@ export class Impl implements Methods<InternalState> {
       if (player?.pile.length > 0)
         return Response.error('You already placed a card')
 
-      console.log({state, player, request})
       const hasCard = player?.hand.includes(request.card)
       if (!hasCard) return Response.error("You don't have that card")
 

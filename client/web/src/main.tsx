@@ -4,9 +4,12 @@ import HathoraContextProvider from "./context/GameContext";
 
 import App from "./App";
 import "./index.css";
+import { ChakraProvider } from "@chakra-ui/react";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <HathoraContextProvider>
-    <App />
+    <ChakraProvider>
+      <App />
+    </ChakraProvider>
   </HathoraContextProvider>
 );

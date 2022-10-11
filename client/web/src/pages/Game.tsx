@@ -8,14 +8,14 @@ import Logo from "../assets/hathora-hammer-logo-light.png";
 
 export default function Game() {
   const { gameId } = useParams();
-  const { disconnect, joinGame, playerState, token, user, login, endGame, getUserName, connecting } =
+  const { disconnect, joinGame, userState, token, user, login, endGame, getUserName, connecting } =
     useHathoraContext();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     // auto join the game once on this page
-    if (gameId && token && !playerState?.players?.find((p) => p.id === user?.id)) {
+    if (gameId && token && !userState?.players?.find((p) => p.id === user?.id)) {
       joinGame(gameId).catch(console.error);
     }
 
@@ -26,13 +26,13 @@ export default function Game() {
     return disconnect;
   }, [gameId, token]);
 
-  const isGameActive = playerState?.turn !== undefined;
+  const isGameActive = userState?.gameStage !== undefined;
 
   useEffect(() => {
-    if (playerState?.winner && isGameActive) {
+    if (userState?.winner && isGameActive) {
       setIsOpen(true);
     }
-  }, [playerState?.winner, isGameActive]);
+  }, [userState?.winner, isGameActive]);
 
   const handleGameEndModalClose = () => {
     setIsOpen(false);
@@ -46,14 +46,8 @@ export default function Game() {
         <div className="flex flex-row bg-slate-200 p-2 md:p-5">
           <div className="flex flex-row justify-center items-center">
             <Link to={"/"}>
-              <img src={Logo} style={{ height: 50 }} />
+              Home
             </Link>
-            <div>
-              Powered By{" "}
-              <strong>
-                <a href="https://github.com/hathora/hathora">Hathora</a>
-              </strong>
-            </div>
           </div>
         </div>
         {!connecting && token ? (
@@ -72,7 +66,7 @@ export default function Game() {
       <WinModal
         isOpen={isOpen}
         onClose={handleGameEndModalClose}
-        title={`${playerState?.winner && getUserName(playerState?.winner)} Won!!`}
+        title={`${userState?.winner && getUserName(userState?.winner)} Won!!`}
       />
     </>
   );
